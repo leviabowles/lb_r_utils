@@ -8,7 +8,7 @@ library(e1071)
 library(fitdistrplus)
 
 
-
+  
 fbep = oauth_endpoint(request = "https://api.fitbit.com/oauth2/token",
                       authorize = "https://www.fitbit.com/oauth2/authorize",
                       access = "https://api.fitbit.com/oauth2/token")
