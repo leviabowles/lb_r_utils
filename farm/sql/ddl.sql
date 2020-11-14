@@ -106,6 +106,7 @@ create table loan_payment(id int auto_increment key,
     payment_date datetime,
     total_payment decimal(15,2),
     interest_payment decimal(15,2),
+    principal_payment decimal(15,2),
     create_date datetime DEFAULT CURRENT_TIMESTAMP,
     update_date datetime ON UPDATE CURRENT_TIMESTAMP);
     
