@@ -83,6 +83,33 @@ create table crop (id int auto_increment key,
     create_date datetime DEFAULT CURRENT_TIMESTAMP,
     update_date datetime ON UPDATE CURRENT_TIMESTAMP);
     
+drop table if exists loan;
+create table loan(id int auto_increment key,
+	loan_key varchar(10),
+    field_key varchar(10),
+    initial_year int,
+    bank_id varchar(10),
+    loan_type_id varchar(10),
+    initial_amount decimal(15,2),
+    interest_terms float,
+    payment_terms varchar(255),
+    amort_years int,
+    term_years int,
+    date_of_initiation datetime,
+    create_date datetime DEFAULT CURRENT_TIMESTAMP,
+    update_date datetime ON UPDATE CURRENT_TIMESTAMP);
+    
+drop table if exists loan_payment;
+create table loan_payment(id int auto_increment key,
+	loan_key varchar(10),
+    year_key int,
+    payment_date datetime,
+    total_payment decimal(15,2),
+    interest_payment decimal(15,2),
+    create_date datetime DEFAULT CURRENT_TIMESTAMP,
+    update_date datetime ON UPDATE CURRENT_TIMESTAMP);
+    
+
     
 
     
