@@ -8,6 +8,15 @@ create table staging_field_year_crop (id int auto_increment key,
     create_date datetime DEFAULT CURRENT_TIMESTAMP,
     update_date datetime ON UPDATE CURRENT_TIMESTAMP);
 
+
+drop table if exists field_year;
+create table field_year (id int auto_increment key,
+	field_key varchar(10),
+    year_key int ,
+    create_date datetime DEFAULT CURRENT_TIMESTAMP,
+    update_date datetime ON UPDATE CURRENT_TIMESTAMP);
+
+
 drop table if exists field_year_crop;
 create table field_year_crop (id int auto_increment key,
 	field_key varchar(10),
@@ -109,6 +118,19 @@ create table loan_payment(id int auto_increment key,
     principal_payment decimal(15,2),
     create_date datetime DEFAULT CURRENT_TIMESTAMP,
     update_date datetime ON UPDATE CURRENT_TIMESTAMP);
+    
+    
+drop table if exists capital_payment;
+create table capital_payment (id int auto_increment key,
+	year_key int, 
+    field_key varchar(10),
+    payment_type_id varchar(10),
+    payment_date datetime,
+    total_payment decimal(15,2),
+	create_date datetime DEFAULT CURRENT_TIMESTAMP,
+    update_date datetime ON UPDATE CURRENT_TIMESTAMP);
+    
+    
     
 
     
