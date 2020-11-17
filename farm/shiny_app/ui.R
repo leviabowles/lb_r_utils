@@ -12,6 +12,25 @@ editTable <- function(db_pw, outdir=getwd(), outfilename="table"){
   
   DF = data.frame(DFX)
   
+  insert_data = function(xx,db_pw){
+    xx[is.na(xx)] = 0
+    xx = xx[,c("field_key","year_key" ,"trans_type" ,"object_type","invoice_date","paid_date","vendor","expense_category","paid_amount","received_amount")]
+    send_q = paste0("insert into farm_db.staging_field_year_transaction (field_key ,
+        year_key ,
+        trans_type ,
+        object_type,
+        invoice_date,
+        paid_date,
+        vendor,
+        expense_category,
+        paid_amount,
+        received_amount ) values ", paste0(apply(xx, 1, function(x) paste0("('", paste0(x, collapse = "', '"), "')")), collapse = ", "))
+  con = dbConnect(RMySQL::MySQL(), host = "localhost",
+                  user = "root", password = db_pw)
+  
+  dbSendQuery(con, send_q)}
+  
+  
   ui = shinyUI(fluidPage(
     
     titlePanel("Edit and save a table"),
