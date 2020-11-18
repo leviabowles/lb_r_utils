@@ -69,37 +69,40 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
     theme = shinytheme("slate"),
     
     titlePanel("Farm-DB Transaction Detail"),
-    sidebarLayout(
-      sidebarPanel(
-        helpText("This is our initial data entry form for Farm-DB.", 
-                 "Right-click on the table to delete/insert rows.", 
-                 "Double-click on a cell to edit."),
-        
-        br(), 
-        
-        wellPanel(
-          h3("Save Changes"), 
-          div(class='row', 
-              div(class="col-sm-6", 
-                  actionButton("save", "Save"))
+    tabsetPanel(
+      tabPanel("Transaction Entry", fluid = TRUE,
+          sidebarLayout(
+            sidebarPanel(
+              helpText("This is our initial data entry form for Farm-DB.", 
+                       "Right-click on the table to delete/insert rows.", 
+                       "Double-click on a cell to edit."),
+              
+              br(), 
+              
+              wellPanel(
+                h3("Save Changes"), 
+                div(class='row', 
+                    div(class="col-sm-6", 
+                        actionButton("save", "Save"))
+                )
+              )
+              
+            , width = 2),
+            
+            mainPanel(
+              wellPanel(
+                uiOutput("message", inline=TRUE)
+              ),
+              
+              br(), br(), 
+              
+              rHandsontableOutput("hot"),
+              br()
+            )
           )
-        )
         
-      , width = 2),
-      
-      mainPanel(
-        wellPanel(
-          uiOutput("message", inline=TRUE)
-        ),
-        
-        br(), br(), 
-        
-        rHandsontableOutput("hot"),
-        br(),
-        
-
-        
-      )
+      ),
+      tabPanel("TFucky", fluid = TRUE)
     )
   ))
   
