@@ -1,5 +1,5 @@
-drop view if exists yearly_agg_agg_financials;
-create view yearly_agg_agg_financials as
+drop view if exists farm_db.yearly_agg_agg_financials;
+create view farm_db.yearly_agg_agg_financials as
 
 select 
 	fy.year_key,

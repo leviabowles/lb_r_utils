@@ -1,21 +1,42 @@
 library(rhandsontable)
 library(shiny)
-editTable <- function(db_pw, outdir=getwd(), outfilename="table"){
+editTable = function(db_pw, outdir=getwd(), outfilename="table"){
   
+  
+  
+  grab_data = function(db_pw){
     con = dbConnect(RMySQL::MySQL(), host = "localhost",
                     user = "root", password = db_pw)
     
-    nn = dbSendQuery(con, "select * from farm_db.field_year_transaction")
-    DFX = dbFetch(nn)
+    DFX = dbGetQuery(con, "select * from farm_db.field_year_transaction")
+    DFX$invoice_date = as.Date(DFX$invoice_date)
+    DFX$paid_date = as.Date(DFX$paid_date)
+    dbDisconnect(con)
+    return(DFX)}
+  
+  grab_lookups = function(db_pw){
+    con = dbConnect(RMySQL::MySQL(), host = "localhost",
+                    user = "root", password = db_pw)
     
-  
-  
-  DF = data.frame(DFX)
+    fk = dbGetQuery(con, "SELECT field_key FROM farm_db.field;")
+    yk = dbGetQuery(con, "SELECT year_key FROM farm_db.farm_year;")
+    otk = dbGetQuery(con, "SELECT object_type FROM farm_db.staging_legit_transaction_objects;")
+    li = list()
+    print(fk)
+    li[["fk"]] = fk$field_key
+    li[["yk"]] = yk
+    li[["otk"]] = otk
+    
+    print(li[["fk"]])
+    print(li[['yk']])
+    dbDisconnect(con)
+    return(li)}
+
   
   insert_data = function(xx,db_pw){
     xx[is.na(xx)] = 0
     xx = xx[,c("field_key","year_key" ,"trans_type" ,"object_type","invoice_date","paid_date","vendor","expense_category","paid_amount","received_amount")]
-    send_q = paste0("insert into farm_db.staging_field_year_transaction (field_key ,
+    send_q = paste0("insert into farm_db.field_year_transaction (field_key ,
         year_key ,
         trans_type ,
         object_type,
@@ -25,61 +46,58 @@ editTable <- function(db_pw, outdir=getwd(), outfilename="table"){
         expense_category,
         paid_amount,
         received_amount ) values ", paste0(apply(xx, 1, function(x) paste0("('", paste0(x, collapse = "', '"), "')")), collapse = ", "))
+  print(send_q)
   con = dbConnect(RMySQL::MySQL(), host = "localhost",
                   user = "root", password = db_pw)
   
-  dbSendQuery(con, send_q)}
+  nn = dbSendQuery(con, send_q)
+  dbDisconnect(con)}
+  
+  
+  delete_data = function(ids,db_pw){
+    send_q = paste0("delete from farm_db.field_year_transaction where id = ", ids)
+    print(send_q)
+    con = dbConnect(RMySQL::MySQL(), host = "localhost",
+                    user = "root", password = db_pw)
+    
+    nn = dbSendQuery(con, send_q)
+    dbDisconnect(con)}
+  
   
   
   ui = shinyUI(fluidPage(
+    theme = shinytheme("slate"),
     
-    titlePanel("Edit and save a table"),
+    titlePanel("Farm-DB Transaction Detail"),
     sidebarLayout(
       sidebarPanel(
-        helpText("Shiny app based on an example given in the rhandsontable package.", 
+        helpText("This is our initial data entry form for Farm-DB.", 
                  "Right-click on the table to delete/insert rows.", 
-                 "Double-click on a cell to edit"),
+                 "Double-click on a cell to edit."),
         
-        wellPanel(
-          h3("Table options"),
-          radioButtons("useType", "Use Data Types", c("TRUE", "FALSE"))
-        ),
         br(), 
         
         wellPanel(
-          h3("Save table"), 
+          h3("Save Changes"), 
           div(class='row', 
               div(class="col-sm-6", 
-                  actionButton("save", "Save")),
-              div(class="col-sm-6",
-                  radioButtons("fileType", "File type", c("ASCII", "RDS")))
+                  actionButton("save", "Save"))
           )
         )
         
-      ),
+      , width = 2),
       
       mainPanel(
         wellPanel(
           uiOutput("message", inline=TRUE)
         ),
         
-        actionButton("cancel", "Cancel last action"),
         br(), br(), 
         
         rHandsontableOutput("hot"),
         br(),
         
-        wellPanel(
-          h3("Add a column"),
-          div(class='row', 
-              div(class="col-sm-5", 
-                  uiOutput("ui_newcolname"),
-                  actionButton("addcolumn", "Add")),
-              div(class="col-sm-4", 
-                  radioButtons("newcolumntype", "Type", c("integer", "double", "character"))),
-              div(class="col-sm-3")
-          )
-        )
+
         
       )
     )
@@ -88,7 +106,10 @@ editTable <- function(db_pw, outdir=getwd(), outfilename="table"){
   server <- shinyServer(function(input, output) {
     
     values <- reactiveValues()
-    
+    DFX = grab_data(db_pw)
+    DF = data.frame(DFX)
+    li = grab_lookups(db_pw)
+    print(DF)
     ## Handsontable
     observe({
       if (!is.null(input$hot)) {
@@ -96,20 +117,30 @@ editTable <- function(db_pw, outdir=getwd(), outfilename="table"){
         DF = hot_to_r(input$hot)
       } else {
         if (is.null(values[["DF"]]))
-          DF <- DF
+          DF = DF
         else
-          DF <- values[["DF"]]
+          DF = values[["DF"]]
       }
-      values[["DF"]] <- DF
+      values[["DF"]] = DF
     })
     
     output$hot <- renderRHandsontable({
-      DF <- values[["DF"]]
+      DFX = grab_data(db_pw)
+      DF = data.frame(DFX)
+      DF = values[["DF"]]
       if (!is.null(DF))
-        rhandsontable(DF, useTypes = as.logical(input$useType), stretchH = "all")
+        print(DF)
+        print(li[['fk']])
+        rhandsontable(DF, useTypes = TRUE, stretchH = "all")%>%
+          hot_col(col = "field_key", type = "dropdown", source = li[['fk']]) %>%
+          hot_col(col = "trans_type", type = "dropdown", source = c("credit","debit"))%>%
+          hot_col(col = "year_key", type = "dropdown", source = li[["yk"]]) %>%
+          hot_col(col = "object_type", type = "dropdown", source = li[['otk']])%>%
+          hot_col("id", readOnly = TRUE) 
     })
     
-    ## Save 
+    
+
     observeEvent(input$save, {
       fileType = isolate(input$fileType)
       finalDF = isolate(values[["DF"]])
@@ -118,36 +149,36 @@ editTable <- function(db_pw, outdir=getwd(), outfilename="table"){
       print(new_values)
       print(values_to_delete)
       
+      if(length(new_values)>0){for(i in new_values){
+        xx = finalDF[finalDF$id ==i,]
+        insert_data(xx,db_pw)} 
+        DFX = grab_data(db_pw)
+        DF = data.frame(DFX)
+        values[["DF"]] = DF
+        print(values[["DF"]])
+
+      }
       
-      if(fileType == "ASCII"){
-        dput(finalDF, file=file.path(outdir, sprintf("%s.txt", outfilename)))
+      if(length(values_to_delete)>0){for(i in values_to_delete){
+        delete_data(i,db_pw)} 
+        DFX = grab_data(db_pw)
+        DF = data.frame(DFX)
+        values[["DF"]] = DF
+        print(values[["DF"]])
+        
+
       }
-      else{
-        saveRDS(finalDF, file=file.path(outdir, sprintf("%s.rds", outfilename)))
-      }
+      
+      
     }
     )
     
-    ## Cancel last action    
-    observeEvent(input$cancel, {
-      if(!is.null(isolate(values[["previous"]]))) values[["DF"]] <- isolate(values[["previous"]])
-    })
-    
-    ## Add column
-    output$ui_newcolname <- renderUI({
-      textInput("newcolumnname", "Name", sprintf("newcol%s", 1+ncol(values[["DF"]])))
-    })
-    observeEvent(input$addcolumn, {
-      DF <- isolate(values[["DF"]])
-      values[["previous"]] <- DF
-      newcolumn <- eval(parse(text=sprintf('%s(nrow(DF))', isolate(input$newcolumntype))))
-      values[["DF"]] <- setNames(cbind(DF, newcolumn, stringsAsFactors=FALSE), c(names(DF), isolate(input$newcolumnname)))
-    })
     
     ## Message
     output$message <- renderUI({
       if(input$save==0){
-        helpText(sprintf("This table will be saved in folder \"%s\" once you press the Save button.", outdir))
+        helpText(sprintf("Please use dropdown menus to add records.  
+                         If an item needs to be added to the tables please consult management.", outdir))
       }else{
         outfile <- ifelse(isolate(input$fileType)=="ASCII", "table.txt", "table.rds")
         fun <- ifelse(isolate(input$fileType)=="ASCII", "dget", "readRDS")
