@@ -1,5 +1,6 @@
 library(rhandsontable)
 library(shiny)
+source("farm_reporting.R")
 editTable = function(db_pw, outdir=getwd(), outfilename="table"){
   
   
@@ -102,9 +103,12 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
           )
         
       ),
-      tabPanel("TFucky", fluid = TRUE)
+      tabPanel("Annual Cost Breakdown", fluid = TRUE,
+               mainPanel(plotOutput(outputId = "annual_plot", height = "600px"))
+               )
     )
-  ))
+  )
+)
   
   server <- shinyServer(function(input, output) {
     
@@ -189,6 +193,9 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
              helpText(sprintf("Type %s(\"%s\") to get it.", fun, outfile)))
       }
     })
+    
+    output$annual_plot = renderPlot({
+      report_cost(db_pw)})
     
   })
   
