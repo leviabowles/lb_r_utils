@@ -110,6 +110,21 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
       ,
       tabPanel("Yearly Financials By Field", fluid = TRUE,
                mainPanel(plotOutput(outputId = "yearly_finance_field", height = "600px"))
+      ),
+               
+      tabPanel("Cumulative Cash Flow By Field", fluid = TRUE,
+                mainPanel(plotOutput(outputId = "yearly_cashflow_field", height = "600px"))
+               
+      ),
+               
+     tabPanel("Yearly Financials in Total", fluid = TRUE,
+              mainPanel(plotOutput(outputId = "yearly_finance", height = "600px"))
+              
+     ),
+     
+     tabPanel("Cumulative Cash Flow in Total", fluid = TRUE,
+              mainPanel(plotOutput(outputId = "yearly_cashflow", height = "600px"))
+               
       )
     )
   )
