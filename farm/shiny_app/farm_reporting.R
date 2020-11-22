@@ -22,7 +22,7 @@ report_cost = function(db_pw){
   return(out_plot)}
 
 
-annual_financials = function(db_pw){
+annual_financials = function(db_pw, switcher){
   con = dbConnect(RMySQL::MySQL(), host = "localhost",
                   user = "root", password = db_pw)
   
@@ -50,26 +50,26 @@ annual_financials = function(db_pw){
   molten = reshape::melt(nn, id = c("field_key","year_key"))
   print(molten)
   molten1 = subset(molten, variable %in% c("costs","revenue","ebitda","profit"))
-  print(ggplot(molten1,
-               aes(fill = variable,x = factor(year_key), y = value, label = value))+
-          geom_bar(position="dodge", stat="identity")+
-          facet_wrap(~field_key)+
-          geom_text(size = 3, position = position_dodge(.9))+
-          scale_y_continuous("Finance Metric")+
-          scale_x_discrete("Crop Year"))
-  
-  print(ggplot(subset(molten,variable == "cum_cash_flow"),
+  if(switcher == 1){out_plot = (ggplot(molten1,
+                     aes(fill = variable,x = factor(year_key), y = value, label = value))+
+                geom_bar(position="dodge", stat="identity")+
+                facet_wrap(~field_key)+
+                geom_text(size = 3, position = position_dodge(.9))+
+                scale_y_continuous("Finance Metric")+
+                scale_x_discrete("Crop Year"))} else {
+        
+    out_plot = (ggplot(subset(molten,variable == "cum_cash_flow"),
                aes(x = factor(year_key), y = value, label = value))+
           geom_bar( stat="identity")+
           facet_wrap(~field_key)+
           geom_text(size = 3)+
           scale_y_continuous("Finance Metric")+
-          scale_x_discrete("Crop Year"))
+          scale_x_discrete("Crop Year"))}
   
-  
+  return(out_plot)
   }
 
-annual_financials_agg = function(db_pw){
+annual_financials_agg = function(db_pw, switcher){
   con = dbConnect(RMySQL::MySQL(), host = "localhost",
                   user = "root", password = db_pw)
   
@@ -99,19 +99,19 @@ annual_financials_agg = function(db_pw){
   molten = reshape::melt(nn, id = c("year_key"))
   print(molten)
   molten1 = subset(molten, variable %in% c("costs","revenue","ebitda","profit"))
-  print(ggplot(molten1,
+  if(switcher == 1){out_plot = (ggplot(molten1,
                aes(fill = variable,x = factor(year_key), y = value, label = value))+
           geom_bar(position="dodge", stat="identity")+
           geom_text(size = 3, position = position_dodge(.9))+
           scale_y_continuous("Finance Metric")+
-          scale_x_discrete("Crop Year"))
+          scale_x_discrete("Crop Year"))} else {
   
-  print(ggplot(subset(molten,variable == "cum_cash_flow"),
+  out_plot = (ggplot(subset(molten,variable == "cum_cash_flow"),
                aes(x = factor(year_key), y = value, label = value))+
           geom_bar( stat="identity")+
           geom_text(size = 3)+
           scale_y_continuous("Finance Metric")+
-          scale_x_discrete("Crop Year"))
+          scale_x_discrete("Crop Year"))}
   
   
 }

@@ -106,6 +106,11 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
       tabPanel("Annual Cost Breakdown", fluid = TRUE,
                mainPanel(plotOutput(outputId = "annual_plot", height = "600px"))
                )
+      
+      ,
+      tabPanel("Yearly Financials By Field", fluid = TRUE,
+               mainPanel(plotOutput(outputId = "yearly_finance_field", height = "600px"))
+      )
     )
   )
 )
@@ -196,6 +201,18 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
     
     output$annual_plot = renderPlot({
       report_cost(db_pw)})
+    
+    output$yearly_finance_field = renderPlot({
+      annual_financials(db_pw,1)})
+    
+    output$yearly_cashflow_field = renderPlot({
+      annual_financials(db_pw,2)})
+    
+    output$yearly_finance = renderPlot({
+      annual_financials_agg(db_pw,1)})
+    
+    output$yearly_cashflow = renderPlot({
+      annual_financials_agg(db_pw,2)})
     
   })
   
