@@ -17,7 +17,9 @@ report_cost = function(db_pw){
     facet_wrap(~field_key)+
     geom_text(aes(label = dollar(paid_amount)),size = 3, position = position_stack(vjust = 0.5))+
     scale_y_continuous("Amount Paid")+
+    ggtitle("Yearly Cost Breakdown")+
     scale_x_discrete("Crop Year") + 
+    ggtitle("Yearly Cost Breakdown")+
     theme_economist()
   return(out_plot)}
 
@@ -56,7 +58,9 @@ annual_financials = function(db_pw, switcher){
                 facet_wrap(~field_key)+
                 geom_text(size = 3, position = position_dodge(.9))+
                 scale_y_continuous("Finance Metric")+
-                scale_x_discrete("Crop Year"))} else {
+                scale_x_discrete("Crop Year")+ 
+                ggtitle("Yearly Financials by Field")+
+                theme_economist())} else {
         
     out_plot = (ggplot(subset(molten,variable == "cum_cash_flow"),
                aes(x = factor(year_key), y = value, label = value))+
@@ -64,7 +68,9 @@ annual_financials = function(db_pw, switcher){
           facet_wrap(~field_key)+
           geom_text(size = 3)+
           scale_y_continuous("Finance Metric")+
-          scale_x_discrete("Crop Year"))}
+          scale_x_discrete("Crop Year")+ 
+            ggtitle("Cumulative Cash Flow by Field")+
+            theme_economist())}
   
   return(out_plot)
   }
@@ -74,7 +80,6 @@ annual_financials_agg = function(db_pw, switcher){
                   user = "root", password = db_pw)
   
   nn = dbGetQuery(con, "select * from farm_db.yearly_agg_agg_financials order by year_key")
-  nn = dbFetch(nn)
   dbDisconnect(con)
   #dbClearResult(nn)
   print(head(nn))
@@ -104,16 +109,20 @@ annual_financials_agg = function(db_pw, switcher){
           geom_bar(position="dodge", stat="identity")+
           geom_text(size = 3, position = position_dodge(.9))+
           scale_y_continuous("Finance Metric")+
-          scale_x_discrete("Crop Year"))} else {
+          scale_x_discrete("Crop Year")+ 
+            ggtitle("Yearly Financials")+
+            theme_economist())} else {
   
   out_plot = (ggplot(subset(molten,variable == "cum_cash_flow"),
                aes(x = factor(year_key), y = value, label = value))+
           geom_bar( stat="identity")+
           geom_text(size = 3)+
           scale_y_continuous("Finance Metric")+
-          scale_x_discrete("Crop Year"))}
+          scale_x_discrete("Crop Year")+ 
+            ggtitle("Cumulative Cash Flow")+
+            theme_economist())}
   
-  
+  return(out_plot)
 }
 
 
