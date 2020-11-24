@@ -24,12 +24,15 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
     otk = dbGetQuery(con, "SELECT object_type FROM farm_db.staging_legit_transaction_objects;")
     li = list()
     print(fk)
+    print(yk)
+    print(otk)
     li[["fk"]] = fk$field_key
-    li[["yk"]] = yk
-    li[["otk"]] = otk
+    li[["yk"]] = yk$year_keuy
+    li[["otk"]] = otk$object_type
     
     print(li[["fk"]])
     print(li[['yk']])
+    print(li[["otk"]])
     dbDisconnect(con)
     return(li)}
 
@@ -136,7 +139,6 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
     DFX = grab_data(db_pw)
     DF = data.frame(DFX)
     li = grab_lookups(db_pw)
-    print(DF)
     ## Handsontable
     observe({
       if (!is.null(input$hot)) {
@@ -156,8 +158,6 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
       DF = data.frame(DFX)
       DF = values[["DF"]]
       if (!is.null(DF))
-        print(DF)
-        print(li[['fk']])
         rhandsontable(DF, useTypes = TRUE, stretchH = "all")%>%
           hot_col(col = "field_key", type = "dropdown", source = li[['fk']]) %>%
           hot_col(col = "trans_type", type = "dropdown", source = c("credit","debit"))%>%
@@ -191,7 +191,6 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
         DFX = grab_data(db_pw)
         DF = data.frame(DFX)
         values[["DF"]] = DF
-        print(values[["DF"]])
         
 
       }

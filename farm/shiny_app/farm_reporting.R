@@ -19,7 +19,6 @@ report_cost = function(db_pw){
     scale_y_continuous("Amount Paid")+
     ggtitle("Yearly Cost Breakdown")+
     scale_x_discrete("Crop Year") + 
-    ggtitle("Yearly Cost Breakdown")+
     theme_economist()
   return(out_plot)}
 
@@ -56,7 +55,7 @@ annual_financials = function(db_pw, switcher){
                      aes(fill = variable,x = factor(year_key), y = value, label = value))+
                 geom_bar(position="dodge", stat="identity")+
                 facet_wrap(~field_key)+
-                geom_text(size = 3, position = position_dodge(.9))+
+                geom_text(aes(label = dollar(value)),size = 3, position = position_dodge(.9))+
                 scale_y_continuous("Finance Metric")+
                 scale_x_discrete("Crop Year")+ 
                 ggtitle("Yearly Financials by Field")+
@@ -66,7 +65,7 @@ annual_financials = function(db_pw, switcher){
                aes(x = factor(year_key), y = value, label = value))+
           geom_bar( stat="identity")+
           facet_wrap(~field_key)+
-          geom_text(size = 3)+
+          geom_text(aes(label = dollar(value)),size = 3)+
           scale_y_continuous("Finance Metric")+
           scale_x_discrete("Crop Year")+ 
             ggtitle("Cumulative Cash Flow by Field")+
@@ -107,7 +106,7 @@ annual_financials_agg = function(db_pw, switcher){
   if(switcher == 1){out_plot = (ggplot(molten1,
                aes(fill = variable,x = factor(year_key), y = value, label = value))+
           geom_bar(position="dodge", stat="identity")+
-          geom_text(size = 3, position = position_dodge(.9))+
+          geom_text(aes(label = dollar(value)),size = 3, position = position_dodge(.9))+
           scale_y_continuous("Finance Metric")+
           scale_x_discrete("Crop Year")+ 
             ggtitle("Yearly Financials")+
@@ -116,7 +115,7 @@ annual_financials_agg = function(db_pw, switcher){
   out_plot = (ggplot(subset(molten,variable == "cum_cash_flow"),
                aes(x = factor(year_key), y = value, label = value))+
           geom_bar( stat="identity")+
-          geom_text(size = 3)+
+          geom_text(aes(label = dollar(value)),size = 3)+
           scale_y_continuous("Finance Metric")+
           scale_x_discrete("Crop Year")+ 
             ggtitle("Cumulative Cash Flow")+
