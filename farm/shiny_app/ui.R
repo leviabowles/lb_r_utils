@@ -5,6 +5,12 @@ source("farm_reporting.R")
 editTable = function(db_pw, outdir=getwd(), outfilename="table"){
   
   
+  collapse_by_row = function(df) {
+    
+    df = apply(df,1,function(x) paste0(x, collapse = "|"))
+    return(df)}
+  
+  
   
   grab_data = function(db_pw){
     con = dbConnect(RMySQL::MySQL(), host = "localhost",
@@ -68,6 +74,11 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
     nn = dbSendQuery(con, send_q)
     dbDisconnect(con)}
   
+  update_data = function(ids, db_pw){
+    
+    
+    
+  }
   
   
   ui = shinyUI(fluidPage(
@@ -134,7 +145,7 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
   )
 )
   
-  server <- shinyServer(function(input, output) {
+  server = shinyServer(function(input, output) {
     
     values <- reactiveValues()
     DFX = grab_data(db_pw)
@@ -154,7 +165,7 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
       values[["DF"]] = DF
     })
     
-    output$hot <- renderRHandsontable({
+    output$hot = renderRHandsontable({
       DFX = grab_data(db_pw)
       DF = data.frame(DFX)
       DF = values[["DF"]]
@@ -174,8 +185,18 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
       finalDF = isolate(values[["DF"]])
       new_values = setdiff(finalDF$id,DFX$id)
       values_to_delete = setdiff(DFX$id, finalDF$id)
+      orig = data.frame(id = DFX$id, teste = collapse_by_row(DFX))
+      newd = data.frame(id = finalDF$id, teste2 = collapse_by_row(finaldDF))
+      outs = merge(orig,newd, by = "id")
+      outs = subset(outs, teste != teste2)
+      values_to_update = outs$id
+      
+      
+
       print(new_values)
       print(values_to_delete)
+      print(values_to_update)      
+      
       
       if(length(new_values)>0){for(i in new_values){
         xx = finalDF[finalDF$id ==i,]
