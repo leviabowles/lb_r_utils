@@ -46,6 +46,7 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
   
   insert_data = function(xx,db_pw){
     xx[is.na(xx)] = 0
+    print(xx)
     xx = xx[,c("field_key","year_key" ,"trans_type" ,"object_type","invoice_date","paid_date","vendor","expense_category","paid_amount","received_amount")]
     send_q = paste0("insert into farm_db.field_year_transaction (field_key ,
         year_key ,
@@ -147,9 +148,10 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
   
   server = shinyServer(function(input, output) {
     
-    values <- reactiveValues()
+    values = reactiveValues()
     DFX = grab_data(db_pw)
     DF = data.frame(DFX)
+    
     li = grab_lookups(db_pw)
     ## Handsontable
     observe({
@@ -175,20 +177,22 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
           hot_col(col = "trans_type", type = "dropdown", source = c("credit","debit"))%>%
           hot_col(col = "year_key", type = "dropdown", source = li[["yk"]]) %>%
           hot_col(col = "object_type", type = "dropdown", source = li[['otk']])%>%
-          hot_col("id", readOnly = TRUE) 
+          hot_col("id", readOnly = TRUE, default = round((runif(1) * 5000)  + 10000,0)) 
     })
     
     
 
     observeEvent(input$save, {
+      
       fileType = isolate(input$fileType)
       finalDF = isolate(values[["DF"]])
+      DFX = grab_data(db_pw)
       new_values = setdiff(finalDF$id,DFX$id)
       values_to_delete = setdiff(DFX$id, finalDF$id)
       orig = data.frame(id = DFX$id, teste = collapse_by_row(DFX))
-      newd = data.frame(id = finalDF$id, teste2 = collapse_by_row(finaldDF))
+      newd = data.frame(id = finalDF$id, teste2 = collapse_by_row(finalDF))
       outs = merge(orig,newd, by = "id")
-      outs = subset(outs, teste != teste2)
+      outs = subset(outs, as.character(teste) != as.character(teste2))
       values_to_update = outs$id
       
       
@@ -200,6 +204,7 @@ editTable = function(db_pw, outdir=getwd(), outfilename="table"){
       
       if(length(new_values)>0){for(i in new_values){
         xx = finalDF[finalDF$id ==i,]
+        print(xx)
         insert_data(xx,db_pw)} 
         DFX = grab_data(db_pw)
         DF = data.frame(DFX)
