@@ -1,5 +1,6 @@
 library(rhandsontable)
 library(shiny)
+library(scales)
 source("farm_reporting.R")
 editTable = function(db_pw, outdir=getwd(), outfilename="table"){
   
