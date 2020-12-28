@@ -16,10 +16,14 @@ xx = multi_lag(xx,"log_return",10)
 xx = add_seasonality(xx)
 
 xx = xx[complete.cases(xx),]
-xx = xx[,c(4:ncol(xx))]
+
+dd = time_slice(xx,10)
+
+time_slice_validate(dd,c("lm","gam"))
 
 
-mod = caret::train(log_return~.,data = xx, type = "GBM")
+
+mod = caret::train(log_return~.,data = dd, method = "lm")
 
 
 
