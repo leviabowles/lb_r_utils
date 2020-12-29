@@ -15,11 +15,12 @@ lb_ts = setClass("lb_ts",
 setMethod("fill_daily",
           "lb_ts",
           function(object) {
-            df = object@df
-            print(df)
-            maxd = data.frame(date = seq(from = min(df$date), to = max(df$date), by = 1))
-            ff = merge(maxd, df, by = "date", all.x = TRUE )
+            
+            
+            maxd = data.frame(date = seq(from = min(object@df$date), to = max(object@df$date), by = 1))
+            ff = merge(maxd, object@df, by = "date", all.x = TRUE )
             for(i in c(1:10)){ff$value = imputeTS::na_locf(ff$value)}
+            print(typeof(object))
             object@df = ff
             return(object)
           }
