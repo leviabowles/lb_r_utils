@@ -8,6 +8,8 @@ xx = read.csv("wheat.csv")
 xx$date = as.Date(xx$date, "%m/%d/%Y")
 row.names(xx) = xx$date
 
+a = lb_ts(df = xx, dvar = "value")
+fill_daily(a)
 
 xx = fill_daily(xx)
 xx$value_lag = my_lag(xx$value,1)
