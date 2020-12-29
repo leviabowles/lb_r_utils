@@ -41,7 +41,7 @@ add_seasonality = function(df){
   
 }
 
-time_slice = function(df, increment, min_size =100, walk=FALSE){
+time_slice = function(df, increment, min_size =100, walk=FALSE, validate_length = 1){
   ##walk is not currently working, need to add functionality
   
   slice_out = list()
@@ -51,7 +51,7 @@ time_slice = function(df, increment, min_size =100, walk=FALSE){
   
   while(j <= max(ind)){
     df_out = df[df$date <= j ,]
-    validate_out = df[df$date > j & df$date <= j+10, ]
+    validate_out = df[df$date > j & df$date <= j+validate_length, ]
     temp_list = list()
     temp_list[["train"]] = df_out
     temp_list[["test"]] = validate_out
@@ -67,15 +67,22 @@ time_slice = function(df, increment, min_size =100, walk=FALSE){
 }
 
 
-time_slice_validate = function(time_sliced, models){
+time_slice_validate = function(time_sliced, models, iter){
+  dm_catch = NULL
   for(j in models){
-    for(i in time_sliced){
-     i =  i[,c(4:ncol(i))]
-     mod = caret::train(log_return ~., data = i , method = j) 
-     print(summary(mod))
-      
+    for(i in time_sliced[c(1:iter)]){
+     i$train =  i$train[,c(4:ncol(i$train))]
+     mod = caret::train(log_return ~., data = i$train , method = j) 
+     try({i$test$pred = predict(mod, newdata = i$test)
+     dfx = data.frame(date = i$test$date, 
+                      real_value = i$test$log_return, 
+                      predicted_value = i$test$pred)
+     dm_catch = rbind(dfx,dm_catch)
+     print(dm_catch)
+     })
     }
   }
+  return(dm_catch)
 }
 
 

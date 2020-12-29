@@ -19,17 +19,6 @@ xx = xx[complete.cases(xx),]
 
 dd = time_slice(xx,10)
 
-time_slice_validate(dd,c("lm","gam"))
+jj = time_slice_validate(dd,c("lm"), iter = 50)
+summary(lm(predicted_value ~ real_value ,jj))
 
-
-
-mod = caret::train(log_return~.,data = dd, method = "lm")
-
-
-
-mod = earth(log_return ~ weekday + log_return_lag1 + log_return_lag2+ log_return_lag3+ log_return_lag4+ log_return_lag5+factor(month) , degree = 2,ff)
-
-
-yy = forecast::auto.arima(ff$value)
-
-yy = forecast::arfima(xx$value)
