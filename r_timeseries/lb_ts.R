@@ -51,8 +51,12 @@ time_slice = function(df, increment, min_size =100, walk=FALSE){
   
   while(j <= max(ind)){
     df_out = df[df$date <= j ,]
+    validate_out = df[df$date > j & df$date <= j+10, ]
+    temp_list = list()
+    temp_list[["train"]] = df_out
+    temp_list[["test"]] = validate_out
     print(df_out)
-    slice_out[[as.character(max(df_out$date))]] = df_out
+    slice_out[[as.character(max(df_out$date))]] = temp_list
     if(j == max(df$date)) break
     j = j + increment
     if(j > max(df$date)) {j = max(df$date)}
@@ -72,10 +76,6 @@ time_slice_validate = function(time_sliced, models){
       
     }
   }
-  
-  
-  
-  
 }
 
 
