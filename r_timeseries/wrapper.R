@@ -9,9 +9,10 @@ xx$date = as.Date(xx$date, "%m/%d/%Y")
 row.names(xx) = xx$date
 
 a = lb_ts(df = xx, dvar = "value")
-fill_daily(a)
+a = fill_daily(a)
+a = log_return_dvar(a)
+a = multi_lag(a, "value",10)
 
-xx = fill_daily(xx)
 xx$value_lag = my_lag(xx$value,1)
 xx$log_return = log_return(xx$value,xx$value_lag)
 xx = multi_lag(xx,"log_return",10)
