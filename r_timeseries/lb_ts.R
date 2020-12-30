@@ -22,12 +22,18 @@ lb_ts = setClass("lb_ts",
          slots = list(splits = "list",
                       df = "data.frame",
                       lagged_variables = "character",
-                      dvar = "character"))
+                      dvar = "character",
+                      model_validation = "data.frame"))
 
 
 setGeneric("log_return_dvar", function(object) standardGeneric("log_return_dvar"))
 setGeneric("fill_daily", function(object) standardGeneric("fill_daily"))
 setGeneric("multi_lag", function(object,var,increment) standardGeneric("multi_lag"))
+setGeneric("add_seasonality", function(object,var,increment) standardGeneric("add_seasonality"))
+setGeneric("complete_only", function(object) standardGeneric("complete_only"))
+setGeneric("time_slice", function(object, increment, min_size =100, walk=FALSE, validate_length = 1) standardGeneric("time_slice"))
+setGeneric("time_build_models", function(object,models,iter) standardGeneric("time_build_models"))
+
 
 setMethod("log_return_dvar",
           "lb_ts",
@@ -67,62 +73,77 @@ setMethod("multi_lag",
           }
 )
 
+setMethod("add_seasonality",
+          "lb_ts",
+          function(object){object@df$month = factor(lubridate::month(object@df$date))
+          object@df$weekday = weekdays(object@df$date)
+          return(object)}
+          
+)
 
 
+setMethod("complete_only",
+          "lb_ts",
+          function(object){
+          
+            object@df = object@df[complete.cases(object@df),]
+            return(object)
+            }
+          
+)
 
+setMethod("time_slice",
+          "lb_ts",
+          function(object,increment, min_size =100, walk=FALSE, validate_length = 1){
+            
+            slice_out = list()
+            ind = object@df$date
+            ind_range = max(ind)-min(ind)
+            j = min(ind) + min_size -1
+            
+            while(j <= max(ind)){
+              df_out = object@df[object@df$date <= j ,]
+              validate_out = object@df[object@df$date > j & object@df$date <= j+validate_length, ]
+              temp_list = list()
+              temp_list[["train"]] = df_out
+              temp_list[["test"]] = validate_out
+              slice_out[[as.character(max(df_out$date))]] = temp_list
+              if(j == max(object@df$date)) break
+              j = j + increment
+              if(j > max(object@df$date)) {j = max(object@df$date)}
+              
+            }
+            
+            object@splits = slice_out
+            return(object)  
+            
+            
+      }
+)
 
-
-
-add_seasonality = function(df){
-  df$month = factor(lubridate::month(df$date))
-  df$weekday = weekdays(df$date)
-  return(df)  
-  
-}
-
-time_slice = function(df, increment, min_size =100, walk=FALSE, validate_length = 1){
-  ##walk is not currently working, need to add functionality
-  
-  slice_out = list()
-  ind = df$date
-  ind_range = max(ind)-min(ind)
-  j = min(ind) + min_size -1
-  
-  while(j <= max(ind)){
-    df_out = df[df$date <= j ,]
-    validate_out = df[df$date > j & df$date <= j+validate_length, ]
-    temp_list = list()
-    temp_list[["train"]] = df_out
-    temp_list[["test"]] = validate_out
-    print(df_out)
-    slice_out[[as.character(max(df_out$date))]] = temp_list
-    if(j == max(df$date)) break
-    j = j + increment
-    if(j > max(df$date)) {j = max(df$date)}
-    
-  }
-  return(slice_out)  
-  
-}
-
-
-time_slice_validate = function(time_sliced, models, iter){
-  dm_catch = NULL
-  for(j in models){
-    for(i in time_sliced[c(1:iter)]){
-     i$train =  i$train[,c(4:ncol(i$train))]
-     mod = caret::train(log_return ~., data = i$train , method = j) 
-     try({i$test$pred = predict(mod, newdata = i$test)
-     dfx = data.frame(date = i$test$date, 
-                      real_value = i$test$log_return, 
-                      predicted_value = i$test$pred)
-     dm_catch = rbind(dfx,dm_catch)
-     print(dm_catch)
-     })
-    }
-  }
-  return(dm_catch)
-}
+setMethod('time_build_models',
+          'lb_ts',
+          function(object,models,iter){
+            dm_catch = NULL
+            for(j in models){
+              for(i in object@splits[c(1:iter)]){
+                print(i)
+                i$train =  i$train[,c(2:ncol(i$train))]
+                mod = caret::train(value ~., data = i$train , method = j) 
+                try({i$test$pred = predict(mod, newdata = i$test)
+                dfx = data.frame(date = i$test$date, 
+                                 real_value = i$test$value, 
+                                 predicted_value = i$test$pred)
+                dm_catch = rbind(dfx,dm_catch)
+                print(dm_catch)
+                })
+              }
+            }
+            object@model_validation = dm_catch
+            return(object)
+          }          
+   
+)
 
 
 
