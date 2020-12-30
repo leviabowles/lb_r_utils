@@ -15,8 +15,7 @@ a = multi_lag(a, "value",10)
 a = add_seasonality(a)
 a = complete_only(a)
 a = time_slice(a,increment = 100)
-a = time_build_models(a,c("lm"),iter = 20)
+a = time_build_models(a,c("lm"),iter = 100)
+model_metrics(a)
 
-jj = time_slice_validate(dd,c("lm"), iter = 50)
-summary(lm(predicted_value ~ real_value ,jj))
 

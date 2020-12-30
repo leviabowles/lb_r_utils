@@ -33,7 +33,7 @@ setGeneric("add_seasonality", function(object,var,increment) standardGeneric("ad
 setGeneric("complete_only", function(object) standardGeneric("complete_only"))
 setGeneric("time_slice", function(object, increment, min_size =100, walk=FALSE, validate_length = 1) standardGeneric("time_slice"))
 setGeneric("time_build_models", function(object,models,iter) standardGeneric("time_build_models"))
-
+setGeneric("model_metrics", function(object) standardGeneric("model_metrics"))
 
 setMethod("log_return_dvar",
           "lb_ts",
@@ -145,5 +145,14 @@ setMethod('time_build_models',
    
 )
 
+setMethod('model_metrics',
+          'lb_ts',
+          function(object){
+            
+            print(cor(a@model_validation[,2:3]))
+            
+            
+          }
+)
 
 
