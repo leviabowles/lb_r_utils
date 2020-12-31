@@ -14,8 +14,8 @@ a = log_return_dvar(a)
 a = multi_lag(a, "value",10)
 a = add_seasonality(a)
 a = complete_only(a)
-a = time_slice(a,increment = 100)
-a = time_build_models(a,c("lm"),iter = 100)
+a = time_slice(a,increment = 1, min_size = 10000)
+a = time_build_models(a,c("lm"),iter = 150)
 model_metrics(a)
 
 
