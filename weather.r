@@ -9,7 +9,6 @@ nn = rnoaa::ghcnd_stations()
 ## DF NO 
 nn = data.frame(nn)
 
-## FIND SOME KANSAS CITY WEATHER STATIONS
 ## ALTERNATELY, YOU CAN GEO-SEARCH BASED ON LAT/LON
 nn[grepl("KANSAS CITY",nn$name) & nn$element == "TMAX",c("id","name","first_year","last_year")]
 
