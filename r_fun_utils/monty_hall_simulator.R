@@ -13,7 +13,9 @@ monty_hall = function(simulations,doors,switcher){
     catch = c()
     for(i in c(1:simulations)){
         eliminate = sample(setdiff(door,c(chosen[i],winners[i])),1)
-        if(switcher == 0){chosed = chosen[i]}else{chosed = sample(setdiff(door,c(eliminate,chosen[i])),1)}
+        if(switcher == 0){
+            chosed = chosen[i]}else{
+            chosed = sample(setdiff(door,c(eliminate,chosen[i])),1)}
         print(length(chosed))
         print(chosed)
         result = if(chosed == winners[i]){1}else{0}
