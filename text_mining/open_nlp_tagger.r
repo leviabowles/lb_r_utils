@@ -16,8 +16,6 @@ pos_table = function(x){
   pos_tag_annotator = Maxent_POS_Tag_Annotator()
   a3 =annotate(s, pos_tag_annotator, a2)
   
-  
-  
   ##we just want words
   a3w = subset(a3, type == "word")
   #and the tags, in a vector
