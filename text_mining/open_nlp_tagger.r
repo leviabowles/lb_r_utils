@@ -1,6 +1,5 @@
 library(NLP)
 library(openNLP)
-## Some text.
 ## FUNCTION TO RETURN A POS TABLE
 pos_table = function(x){
   s = as.String(x)
