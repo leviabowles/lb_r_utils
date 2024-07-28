@@ -1,4 +1,3 @@
-
 library(NLP)
 library(openNLP)
 ## Some text.
