@@ -18,7 +18,7 @@ listo = df['id'].to_list()
 for ID in listo:
     try: 
         api.destroy_status(ID)
-        time.sleep(15)
+        time.sleep(60)
         print(ID)
     except:
         print('failed destruction')
