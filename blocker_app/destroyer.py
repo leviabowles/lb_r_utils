@@ -5,6 +5,8 @@ import os
 import warnings
 warnings.filterwarnings("ignore")
 
+## insert path to csv of tweet ids
+fp = ''
 
 api = tweepy.API(auth)
 
