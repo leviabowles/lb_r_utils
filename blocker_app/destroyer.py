@@ -21,4 +21,5 @@ for ID in listo:
         time.sleep(15)
         print(ID)
     except:
+        print('failed destruction')
         print(ID)
