@@ -13,7 +13,7 @@ api = tweepy.API(auth)
 df = pd.read_csv(fp, dtype={'id': str})
 listo = df['id'].to_list()
 
-for ID in listo[5:30]:
+for ID in listo:
     try: 
         api.destroy_status(ID)
         time.sleep(15)
